@@ -1,0 +1,50 @@
+import discord
+import requests
+import random
+from discord.ext import commands
+
+intents = discord.Intents.default()
+intents.message_content = True
+bot = commands.Bot(command_prefix='!', intents=intents)
+
+
+consejos = [
+    "Reduce el uso de plásticos de un solo uso.",
+    "Usa el transporte público siempre que puedas.",
+    "Apaga las luces y dispositivos electrónicos cuando no los uses.",
+    "Opta por alimentos locales y de temporada.",
+    "Recicla y reutiliza siempre que sea posible.",
+    "Planta un árbol o participa en una reforestación.",
+    "Elige productos con menos empaques.",
+    "Comparte información sobre el cambio climático con tus amigos.",
+    "Usa bombillas LED en lugar de incandescentes.",
+    "Fomenta el uso de bicicletas y transporte sostenible."
+]
+
+@bot.command(name='consejo')
+async def send_consejo(ctx):
+    consejo = random.choice(consejos)
+    await ctx.send(consejo)
+
+@bot.command(name='clima')
+async def clima(ctx, ciudad: str):
+    api_key = 'token'  
+    url = f'http://api.openweathermap.org/data/2.5/weather?q={ciudad}&appid={api_key}&units=metric'
+    respuesta = requests.get(url)
+    
+    if respuesta.status_code == 200:
+        datos = respuesta.json()
+        temperatura = datos['main']['temp']
+        descripcion = datos['weather'][0]['description']
+        await ctx.send(f'El clima en {ciudad} es de {temperatura}°C con {descripcion}.')
+    else:
+        await ctx.send('No se pudo obtener la información del clima. Verifica el nombre de la ciudad.')
+
+
+@bot.event
+async def on_ready():
+    print(f'Bot {bot.user.name} está en línea!')
+
+
+bot.run('token')
+
